@@ -19,19 +19,25 @@ namespace XOutput.Devices
     public class DeviceInputChangedEventArgs : EventArgs
     {
         /// <summary>
+        /// Gets the changed device.
+        /// </summary>
+        public IDevice Device => device;
+        /// <summary>
         /// Gets the changed values.
         /// </summary>
-        public IEnumerable<Enum> ChangedValues => changedValues.ToArray();
+        public IEnumerable<InputSource> ChangedValues => changedValues.ToArray();
         /// <summary>
         /// Gets the changed DPad values.
         /// </summary>
         public IEnumerable<int> ChangedDPads => changedDPads.ToArray();
 
-        protected IEnumerable<Enum> changedValues;
+        protected IDevice device;
+        protected IEnumerable<InputSource> changedValues;
         protected IEnumerable<int> changedDPads;
 
-        public DeviceInputChangedEventArgs(IEnumerable<Enum> changedValues, IEnumerable<int> changedDPads)
+        public DeviceInputChangedEventArgs(IDevice device, IEnumerable<InputSource> changedValues, IEnumerable<int> changedDPads)
         {
+            this.device = device;
             this.changedDPads = changedDPads;
             this.changedValues = changedValues;
         }
@@ -41,7 +47,7 @@ namespace XOutput.Devices
         /// </summary>
         /// <param name="type">input type</param>
         /// <returns></returns>
-        public bool HasValueChanged(Enum type)
+        public bool HasValueChanged(InputSource type)
         {
             return changedValues.Contains(type);
         }

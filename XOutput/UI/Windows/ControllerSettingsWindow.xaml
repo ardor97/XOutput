@@ -5,97 +5,42 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:XOutput.UI.Windows"
         mc:Ignorable="d"
-        Title="{Binding Model.Title}" Width="1010" Height="850" MinWidth="1010"
+        Title="{Binding Model.Title}" Width="1200" Height="850" MinWidth="1010"
         d:DataContext="{d:DesignInstance Type=local:ControllerSettingsViewModel, IsDesignTimeCreatable=False}"
         Loaded="WindowLoaded">
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*" MinWidth="200"/>
-            <ColumnDefinition Width="2*" MinWidth="590"/>
+            <ColumnDefinition Width="3*" MinWidth="710"/>
             <ColumnDefinition Width="*" MinWidth="200"/>
         </Grid.ColumnDefinitions>
-        <!--Direct Input-->
-        <GroupBox Header="{Binding LanguageModel.Data, Converter={StaticResource LanguageConverter}, ConverterParameter='DirectInput'}">
-            <ScrollViewer VerticalScrollBarVisibility="Auto">
-                <StackPanel>
-                    <GroupBox Header="{Binding LanguageModel.Data, Converter={StaticResource LanguageConverter}, ConverterParameter='Axes'}" 
-                              Visibility="{Binding Model.InputAxisViews, Converter={StaticResource EnumerableNotEmptyToVisibilityConverter}}">
-                        <ItemsControl ItemsSource="{Binding Model.InputAxisViews}" ItemsPanel="{StaticResource VerticalStackPanel}"/>
-                    </GroupBox>
-                    <GroupBox Header="{Binding LanguageModel.Data, Converter={StaticResource LanguageConverter}, ConverterParameter='DPad'}" 
-                              Visibility="{Binding Model.InputDPadViews, Converter={StaticResource EnumerableNotEmptyToVisibilityConverter}}">
-                        <ItemsControl ItemsSource="{Binding Model.InputDPadViews}" ItemsPanel="{StaticResource VerticalStackPanel}"/>
-                    </GroupBox>
-                    <GroupBox Header="{Binding LanguageModel.Data, Converter={StaticResource LanguageConverter}, ConverterParameter='Buttons'}">
-                        <ItemsControl ItemsSource="{Binding Model.InputButtonViews}" ItemsPanel="{StaticResource VerticalStackPanel}"/>
-                    </GroupBox>
-                </StackPanel>
-            </ScrollViewer>
-        </GroupBox>
-        <GridSplitter Grid.Column="0" Width="5"></GridSplitter>
         <!--Mapping-->
-        <GroupBox Header="{Binding LanguageModel.Data, Converter={StaticResource LanguageConverter}, ConverterParameter='Mapping'}" Grid.Column="1">
+        <GroupBox Header="{Binding LanguageModel.Data, Converter={StaticResource LanguageConverter}, ConverterParameter='Mapping'}" Grid.Column="0">
             <ScrollViewer VerticalScrollBarVisibility="Auto">
                 <StackPanel>
                     <GroupBox Header="{Binding LanguageModel.Data, Converter={StaticResource LanguageConverter}, ConverterParameter='Axes'}">
                         <ItemsControl ItemsSource="{Binding Model.MapperAxisViews}" ItemsPanel="{StaticResource VerticalStackPanel}" Focusable="False"/>
                     </GroupBox>
-                    <GroupBox Header="{Binding LanguageModel.Data, Converter={StaticResource LanguageConverter}, ConverterParameter='DPad'}"
-                              Visibility="{Binding Model.MapperDPadViews, Converter={StaticResource EnumerableNotEmptyToVisibilityConverter}, ConverterParameter=invert}">
-                        <Grid>
-                            <Label Content="{Binding LanguageModel.Data, Converter={StaticResource LanguageConverter}, ConverterParameter='AutomaticDPad'}"
-                               Visibility="{Binding Model.MapperDPadViews, Converter={StaticResource EnumerableCountToVisibilityConverter}, ConverterParameter='1|invert'}"/>
-                            <StackPanel Visibility="{Binding Model.MapperDPadViews, Converter={StaticResource EnumerableCountToVisibilityConverter}, ConverterParameter='1'}">
-                                <ComboBox ItemsSource="{Binding Model.Dpads}" SelectedItem="{Binding Model.SelectedDPad}" SelectionChanged="ComboBoxSelected"/>
-                            </StackPanel>
-                        </Grid>
-                    </GroupBox>
-                    <GroupBox Header="{Binding LanguageModel.Data, Converter={StaticResource LanguageConverter}, ConverterParameter='DPad'}"
-                              Visibility="{Binding Model.MapperDPadViews, Converter={StaticResource EnumerableNotEmptyToVisibilityConverter}}">
+                    <GroupBox Header="{Binding LanguageModel.Data, Converter={StaticResource LanguageConverter}, ConverterParameter='DPad'}">
                         <ItemsControl ItemsSource="{Binding Model.MapperDPadViews}" ItemsPanel="{StaticResource VerticalStackPanel}" Focusable="False"/>
                     </GroupBox>
                     <GroupBox Header="{Binding LanguageModel.Data, Converter={StaticResource LanguageConverter}, ConverterParameter='Buttons'}">
                         <ItemsControl ItemsSource="{Binding Model.MapperButtonViews}" ItemsPanel="{StaticResource VerticalStackPanel}" Focusable="False"/>
                     </GroupBox>
                     <GroupBox Header="{Binding LanguageModel.Data, Converter={StaticResource LanguageConverter}, ConverterParameter='ForceFeedback'}">
-                        <StackPanel Orientation="Horizontal">
-                            <Label Content="{Binding LanguageModel.Data, Converter={StaticResource LanguageConverter}, ConverterParameter='Test'}"/>
-                            <Button Click="ForceFeedbackButtonClick" IsEnabled="{Binding Model.ForceFeedbackEnabled}">
-                                <TextBlock Margin="10 0">
-                                    <TextBlock.Text>
-                                        <MultiBinding Converter="{StaticResource DynamicLanguageConverter}">
-                                            <Binding Path="LanguageModel.Data"/>
-                                            <Binding Path="Model.TestButtonText"/>
-                                        </MultiBinding>
-                                    </TextBlock.Text>
-                                </TextBlock>
-                            </Button>
-                            <Label>
-                                <MultiBinding Converter="{StaticResource DynamicLanguageConverter}">
-                                    <Binding Path="LanguageModel.Data"/>
-                                    <Binding Path="Model.ForceFeedbackText"/>
-                                </MultiBinding>
-                            </Label>
-                        </StackPanel>
+                        <ComboBox ItemsSource="{Binding Model.ForceFeedbacks}" SelectedItem="{Binding Model.ForceFeedback}" SelectionChanged="ComboBox_SelectionChanged"/>
                     </GroupBox>
                     <GroupBox Header="{Binding LanguageModel.Data, Converter={StaticResource LanguageConverter}, ConverterParameter='OtherSettings'}">
                         <StackPanel>
+                            <TextBox Text="{Binding Model.Title, UpdateSourceTrigger=PropertyChanged}" TextChanged="TextBox_TextChanged"/>
                             <CheckBox Margin="5" Content="{Binding LanguageModel.Data, Converter={StaticResource LanguageConverter}, ConverterParameter='StartWhenConnected'}"
                                       IsChecked="{Binding Model.StartWhenConnected}" Checked="CheckBoxChecked" Unchecked="CheckBoxChecked"/>
-                            <StackPanel Visibility="{Binding Model.IsAdmin, Converter={StaticResource BoolToVisibilityConverter}}">
-                                <Button Height="30" Margin="5" Click="AddHidGuardianButtonClick" Content="{Binding LanguageModel.Data, Converter={StaticResource LanguageConverter}, ConverterParameter='HidGuardianAdd'}"
-                                        Visibility="{Binding Model.HidGuardianAdded, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter={StaticResource True}}">
-                                </Button>
-                                <Button Height="30" Margin="5" Click="RemoveHidGuardianButtonClick" Content="{Binding LanguageModel.Data, Converter={StaticResource LanguageConverter}, ConverterParameter='HidGuardianRemove'}"
-                                        Visibility="{Binding Model.HidGuardianAdded, Converter={StaticResource BoolToVisibilityConverter}}"/>
-                            </StackPanel>
                             <Button Height="30" Margin="5" Click="ConfigureAllButtonClick" Content="{Binding LanguageModel.Data, Converter={StaticResource LanguageConverter}, ConverterParameter='ConfigureAll'}"/>
                         </StackPanel>
                     </GroupBox>
                 </StackPanel>
             </ScrollViewer>
         </GroupBox>
-        <GridSplitter Grid.Column="1" Width="5"></GridSplitter>
+        <GridSplitter Grid.Column="0" Width="5"></GridSplitter>
         <!--XInput-->
         <GroupBox Header="{Binding LanguageModel.Data, Converter={StaticResource LanguageConverter}, ConverterParameter='XInput'}" Grid.Column="2">
             <ScrollViewer VerticalScrollBarVisibility="Auto">

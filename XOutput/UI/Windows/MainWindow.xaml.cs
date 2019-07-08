@@ -82,10 +82,15 @@ namespace XOutput.UI.Windows
                 }
                 catch (Exception ex)
                 {
-                    logger.Error("Cannot log into the log box");
+                    logger.Error("Cannot log into the log box: " + msg + Environment.NewLine);
                     logger.Error(ex);
                 }
             }));
+        }
+
+        private void AddControllerClick(object sender, RoutedEventArgs e)
+        {
+            viewModel.AddController(null);
         }
 
         private void RefreshClick(object sender, RoutedEventArgs e)

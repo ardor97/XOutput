@@ -33,7 +33,6 @@ namespace XOutput.UI.Windows
         {
             this.controller = controller;
             this.viewModel = viewModel;
-            controller.InputDevice.Disconnected += Disconnected;
             DataContext = viewModel;
             InitializeComponent();
         }
@@ -53,7 +52,6 @@ namespace XOutput.UI.Windows
 
         protected override void OnClosed(EventArgs e)
         {
-            controller.InputDevice.Disconnected -= Disconnected;
             timer.Tick -= TimerTick;
             timer.Stop();
             viewModel.Dispose();
@@ -65,37 +63,19 @@ namespace XOutput.UI.Windows
             viewModel.ConfigureAll();
         }
 
-        void Disconnected(object sender, DeviceDisconnectedEventArgs e)
-        {
-            Dispatcher.Invoke(() =>
-            {
-                Close();
-            });
-        }
-
-        private void ComboBoxSelected(object sender, RoutedEventArgs e)
-        {
-            viewModel.SelectedDPad();
-        }
-
-        private void ForceFeedbackButtonClick(object sender, RoutedEventArgs e)
-        {
-            viewModel.TestForceFeedback();
-        }
-
         private void CheckBoxChecked(object sender, RoutedEventArgs e)
         {
             viewModel.SetStartWhenConnected();
         }
 
-        private void AddHidGuardianButtonClick(object sender, RoutedEventArgs e)
+        private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            viewModel.AddHidGuardian();
+            viewModel.SetForceFeedback();
         }
 
-        private void RemoveHidGuardianButtonClick(object sender, RoutedEventArgs e)
+        private void TextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
-            viewModel.RemoveHidGuardian();
+            controller.Mapper.Name = ViewModel.Model.Title;
         }
     }
 }

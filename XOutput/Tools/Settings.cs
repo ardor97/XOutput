@@ -1,10 +1,13 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using XOutput.Devices.Input;
 using XOutput.Devices.Mapper;
+using XOutput.Devices.XInput;
 using XOutput.Logging;
 
 namespace XOutput.Tools
@@ -19,7 +22,6 @@ namespace XOutput.Tools
         private const string ShowAllKey = "ShowAll";
         private const string HidGuardianEnabledKey = "HidGuardianEnabled";
         private const string General = "General";
-        private const string KeyboardKey = "Keyboard";
         private static readonly ILogger logger = LoggerFactory.GetLogger(typeof(Settings));
 
         /// <summary>
@@ -32,53 +34,32 @@ namespace XOutput.Tools
             var settings = new Settings();
             if (File.Exists(filePath))
             {
+
                 var text = File.ReadAllText(filePath);
-                IniData ini = IniData.Deserialize(text);
-                foreach (var section in ini.Content)
-                {
-                    var id = section.Key;
-                    if (id == General)
-                    {
-                        if (section.Value.ContainsKey(LanguageKey))
-                        {
-                            LanguageManager.Instance.Language = section.Value[LanguageKey];
-                        }
-                        if (section.Value.ContainsKey(CloseToTrayKey))
-                        {
-                            settings.CloseToTray = section.Value[CloseToTrayKey] == "true";
-                        }
-                        if (section.Value.ContainsKey(ShowAllKey))
-                        {
-                            settings.ShowAll = section.Value[ShowAllKey] == "true";
-                        }
-                        if (section.Value.ContainsKey(HidGuardianEnabledKey))
-                        {
-                            settings.HidGuardianEnabled = section.Value[HidGuardianEnabledKey] == "true";
-                        }
-                    }
-                    else if (id == KeyboardKey)
-                    {
-                        settings.mappers[id] = KeyboardToXInputMapper.Parse(section.Value);
-                        logger.Debug("Mapper loaded for keyboard");
-                    }
-                    else
-                    {
-                        settings.mappers[id] = DirectToXInputMapper.Parse(section.Value);
-                        logger.Debug("Mapper loaded for " + id);
-                    }
-                }
+                settings = JsonConvert.DeserializeObject<Settings>(text);
             }
             return settings;
         }
 
-        private Dictionary<string, InputMapperBase> mappers;
         public bool CloseToTray { get; set; }
         public bool ShowAll { get; set; }
         public bool HidGuardianEnabled { get; set; }
+        public string Language
+        {
+            get => LanguageManager.Instance.Language;
+            set
+            {
+                LanguageManager.Instance.Language = value;
+            }
+        }
+
+        public Dictionary<string, InputConfig> Input { get; set; }
+        public List<InputMapper> Mapping { get; set; }
 
         public Settings()
         {
-            mappers = new Dictionary<string, InputMapperBase>();
+            Input = new Dictionary<string, InputConfig>();
+            Mapping = new List<InputMapper>();
         }
 
         /// <summary>
@@ -87,18 +68,7 @@ namespace XOutput.Tools
         /// <param name="filePath">Filepath of the settings file</param>
         public void Save(string filePath)
         {
-            IniData ini = new IniData();
-            foreach (var mapper in mappers)
-            {
-                ini.AddSection(mapper.Key, mapper.Value.ToDictionary());
-            }
-            Dictionary<string, string> generalSettings = new Dictionary<string, string>();
-            generalSettings[LanguageKey] = LanguageManager.Instance.Language;
-            generalSettings[CloseToTrayKey] = CloseToTray ? "true" : "false";
-            generalSettings[ShowAllKey] = ShowAll ? "true" : "false";
-            generalSettings[HidGuardianEnabledKey] = HidGuardianEnabled ? "true" : "false";
-            ini.AddSection(General, generalSettings);
-            File.WriteAllText(filePath, ini.Serialize());
+            File.WriteAllText(filePath, JsonConvert.SerializeObject(this, Formatting.Indented));
         }
 
         /// <summary>
@@ -106,20 +76,57 @@ namespace XOutput.Tools
         /// </summary>
         /// <param name="id">DeviceID</param>
         /// <returns></returns>
-        public InputMapperBase GetMapper(string id)
+        public InputMapper GetMapper(string id)
         {
-            if (!mappers.ContainsKey(id))
+            var mapper = Mapping.FirstOrDefault(m => m.Id == id);
+            return mapper;
+        }
+
+        /// <summary>
+        /// Creates the mapper with the given deviceID, if it does not exists yet.
+        /// </summary>
+        /// <param name="id">DeviceID</param>
+        /// <returns></returns>
+        public InputMapper CreateMapper(string id)
+        {
+            var mapper = Mapping.FirstOrDefault(m => m.Id == id);
+            if (mapper == null)
             {
-                if (id == KeyboardKey)
+                mapper = new InputMapper();
+                mapper.Id = id;
+                mapper.Name = "Controller";
+                foreach (var type in XInputHelper.Instance.Values)
                 {
-                    mappers[id] = new KeyboardToXInputMapper();
+                    mapper.SetMapping(type, new MapperData());
                 }
-                else
-                {
-                    mappers[id] = new DirectToXInputMapper();
-                }
+                Mapping.Add(mapper);
             }
-            return mappers[id];
+            return mapper;
+        }
+
+        /// <summary>
+        /// Gets the input configuration with the given deviceID. If configuration are not saved in this settings, a new configuration will be returned.
+        /// </summary>
+        /// <param name="id">DeviceID</param>
+        /// <param name="initialValue">Default config</param>
+        /// <returns></returns>
+        public InputConfig GetInputConfiguration(string id, InputConfig initialValue)
+        {
+            if (initialValue == null)
+            {
+                Input[id] = new InputConfig();
+                initialValue.ForceFeedback = false;
+                return Input[id];
+            }
+            if (!Input.ContainsKey(id))
+            {
+                Input[id] = initialValue;
+                return Input[id];
+            }
+            InputConfig saved = Input[id];
+            initialValue.ForceFeedback = saved.ForceFeedback;
+            Input[id] = initialValue;
+            return initialValue;
         }
     }
 }

@@ -1,5 +1,5 @@
 [![Build](https://ci.appveyor.com/api/projects/status/github/csutorasa/XOutput?branch=master&svg=true)](https://ci.appveyor.com/project/csutorasa/xoutput/)
-[![Github All Releases](https://img.shields.io/github/downloads/csutorasa/XOutput/total.svg)]()
+[![Github All Releases](https://img.shields.io/github/downloads/csutorasa/XOutput/total.svg)](https://github.com/csutorasa/XOutput/releases/)
 [![Download XOutput](https://img.shields.io/sourceforge/dt/xoutput.svg)](https://sourceforge.net/projects/xoutput/files/latest/download)
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://paypal.me/csutorasa)
 
@@ -16,19 +16,32 @@ Install one of the two libraries. ViGEm (preferred) or SCPToolkit (unsupported, 
   a) Install [VIGEm framework](https://github.com/ViGEm/ViGEmBus/releases) (Recommended)
   b) Install [ScpToolkit](https://github.com/nefarius/ScpServer/releases/latest) and all of its dependencies described [here](https://github.com/nefarius/ScpToolkit/blob/master/README.md#installation-requirements)
 
+Install:
+
+- DirectX
+- Visual C++ Redistributable for Visual Studio 2015 32-bit
+- Visual C++ Redistributable for Visual Studio 2015 64-bit
+- all the drivers for your controllers
+- [.Net Framework 4.5.2](https://www.microsoft.com/en-us/download/details.aspx?id=42642) if you do not have Windows 10
+- if you have issues, install the official [XBox 360 controller drivers](https://www.microsoft.com/accessories/en-gb/d/xbox-360-controller-for-windows).
+
 Download the application:
 
 * Download the [latest stable release](https://github.com/csutorasa/XOutput/releases/latest)
-* Download the [latest development release](https://ci.appveyor.com/project/csutorasa/xoutput/build/artifacts)
+* Download the [latest development release](https://ci.appveyor.com/project/csutorasa/xoutput/build/artifacts), development release is not stable, should be used only to test new features and bugfixes before release
 * Unzip to any directory
-
-Install all the drivers for your controllers.
-
-If you have issues, install the official [XBox 360 controller drivers](https://www.microsoft.com/accessories/en-gb/d/xbox-360-controller-for-windows).
 
 ## How to use
 
 If all the requirements are installed, the software should start up without any error messages.
+
+### Input devices
+
+Input devices can be checked and configured individually.
+Input values can be seen in the input fields.
+Force feedback can be disabled for each device.
+
+### Game controllers
 
 The available input devices are shown in the Game Controllers section. Choose a  device and click 'Edit'.
 

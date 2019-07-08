@@ -20,6 +20,10 @@ namespace XOutput.Devices.Input
         /// </summary>
         string DisplayName { get; }
         /// <summary>
+        /// The unique ID of the controller.
+        /// </summary>
+        string UniqueId { get; }
+        /// <summary>
         /// Gets if the device is connected.
         /// </summary>
         bool Connected { get; }
@@ -31,6 +35,10 @@ namespace XOutput.Devices.Input
         /// Gets the number of force feedback motors.
         /// </summary>
         int ForceFeedbackCount { get; }
+        /// <summary>
+        /// Gets input configuration.
+        /// </summary>
+        InputConfig InputConfiguration { get; }
         /// <summary>
         /// Sets the force feedback motor values.
         /// </summary>

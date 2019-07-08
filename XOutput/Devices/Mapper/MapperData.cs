@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,9 +13,33 @@ namespace XOutput.Devices.Mapper
     public class MapperData
     {
         /// <summary>
+        /// From data device
+        /// </summary>
+        public string InputDevice { get; set; }
+        /// <summary>
         /// From data type
         /// </summary>
-        public Enum InputType { get; set; }
+        public string InputType { get; set; }
+        /// <summary>
+        /// Data source
+        /// </summary>
+        [JsonIgnore]
+        public InputSource Source
+        {
+            get => source;
+            set
+            {
+                if (value != source)
+                {
+                    source = value;
+                    if (source != null)
+                    {
+                        InputType = source.Offset.ToString();
+                        InputDevice = source.InputDevice.UniqueId;
+                    }
+                }
+            }
+        }
         /// <summary>
         /// Minimum value
         /// </summary>
@@ -28,9 +53,12 @@ namespace XOutput.Devices.Mapper
         /// </summary>
         public double Deadzone { get; set; }
 
+        InputSource source;
+
         public MapperData()
         {
             InputType = null;
+            source = null;
             MinValue = 0;
             MaxValue = 0;
             Deadzone = 0;

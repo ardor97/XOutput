@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using XOutput.Devices;
 
 namespace XOutput.UI.Component
 {
     public class Axis2DModel : ModelBase
     {
-        public Enum TypeX { get; set; }
-        public Enum TypeY { get; set; }
+        public InputSource TypeX { get; set; }
+        public InputSource TypeY { get; set; }
 
         private int valuex;
         public int ValueX
@@ -63,20 +64,6 @@ namespace XOutput.UI.Component
                 {
                     maxy = value;
                     OnPropertyChanged(nameof(MaxY));
-                }
-            }
-        }
-
-        private bool twoD;
-        public bool TwoD
-        {
-            get => twoD;
-            set
-            {
-                if (twoD != value)
-                {
-                    twoD = value;
-                    OnPropertyChanged(nameof(TwoD));
                 }
             }
         }

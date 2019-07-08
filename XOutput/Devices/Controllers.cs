@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using XOutput.Devices.Input;
 
 namespace XOutput.Devices
 {
@@ -11,8 +12,20 @@ namespace XOutput.Devices
     /// </summary>
     public sealed class Controllers
     {
+        private static Controllers instance = new Controllers();
+        /// <summary>
+        /// Gets the singleton instance of the class.
+        /// </summary>
+        public static Controllers Instance => instance;
+
         private List<int> ids = new List<int>();
         private object lockObject = new object();
+        private List<GameController> controllers = new List<GameController>();
+
+        private Controllers()
+        {
+
+        }
 
         /// <summary>
         /// Gets a new ID.
@@ -44,6 +57,36 @@ namespace XOutput.Devices
             {
                 ids.Remove(id);
             }
+        }
+
+        public void Add(GameController controller, bool refresh = false)
+        {
+            controllers.Add(controller);
+            Update(controller, InputDevices.Instance.GetDevices());
+        }
+
+        public void Remove(GameController controller)
+        {
+            controllers.Remove(controller);
+        }
+
+        public void Update(GameController controller, IEnumerable<IInputDevice> inputDevices)
+        {
+            controller.Mapper.Attach(inputDevices);
+            controller.XInput.UpdateSources(controller.Mapper.GetInputs());
+        }
+
+        public void Update(IEnumerable<IInputDevice> inputDevices)
+        {
+            foreach (var controller in controllers)
+            {
+                Update(controller, inputDevices);
+            }
+        }
+
+        public IEnumerable<GameController> GetControllers()
+        {
+            return controllers.ToArray();
         }
     }
 }

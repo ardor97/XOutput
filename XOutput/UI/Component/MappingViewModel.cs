@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using XOutput.Devices;
+using XOutput.Devices.Input;
 using XOutput.Devices.Mapper;
 using XOutput.Devices.XInput;
 using XOutput.Tools;
@@ -12,11 +13,6 @@ using XOutput.UI.Windows;
 
 namespace XOutput.UI.Component
 {
-    enum MappingTypes
-    {
-        Disabled
-    }
-
     public class MappingViewModel : ViewModelBase<MappingModel>
     {
         private GameController controller;
@@ -26,29 +22,13 @@ namespace XOutput.UI.Component
             this.controller = controller;
             var mapperData = controller.Mapper.GetMapping(inputType);
             Model.XInputType = inputType;
-            var device = controller.InputDevice;
-            Model.Inputs.Add(MappingTypes.Disabled);
-            foreach (var directInput in device.Buttons)
-            {
-                Model.Inputs.Add(directInput);
-            }
-            foreach (var directInput in device.Axes)
-            {
-                Model.Inputs.Add(directInput);
-            }
-            foreach (var directInput in device.Sliders)
-            {
-                Model.Inputs.Add(directInput);
-            }
-            if (mapperData != null && mapperData.InputType == null)
-                mapperData.InputType = device.Buttons.FirstOrDefault();
             Model.MapperData = mapperData;
             SetSelected(mapperData);
         }
 
         public void Configure()
         {
-            new AutoConfigureWindow(new AutoConfigureViewModel(new AutoConfigureModel(), controller, new XInputTypes[] { Model.XInputType }), false).ShowDialog();
+            new AutoConfigureWindow(new AutoConfigureViewModel(new AutoConfigureModel(), InputDevices.Instance.GetDevices(), controller.Mapper, new XInputTypes[] { Model.XInputType }), false).ShowDialog();
             SetSelected(GetMapperData());
         }
 
@@ -74,20 +54,27 @@ namespace XOutput.UI.Component
         {
             if (Helper.DoubleEquals(mapperData.MinValue, Model.XInputType.GetDisableValue()) && Helper.DoubleEquals(mapperData.MaxValue, Model.XInputType.GetDisableValue()))
             {
-                Model.SelectedInput = MappingTypes.Disabled;
+                Model.SelectedInput = DisabledInputSource.Instance;
                 Model.ConfigVisibility = System.Windows.Visibility.Collapsed;
             }
             else
             {
-                Model.SelectedInput = mapperData.InputType;
+                Model.SelectedInput = mapperData.Source;
                 Model.ConfigVisibility = System.Windows.Visibility.Visible;
             }
-            SelectionChanged(Model.SelectedInput);
+            if (mapperData.Source == null)
+            {
+                Model.ConfigVisibility = System.Windows.Visibility.Collapsed;
+            }
+            else
+            {
+                SelectionChanged(Model.SelectedInput);
+            }
         }
 
-        protected void SelectionChanged(Enum type)
+        protected void SelectionChanged(InputSource type)
         {
-            if (type.Equals(MappingTypes.Disabled))
+            if (type.Type == InputSourceTypes.Disabled)
             {
                 Model.Min = (decimal)(100 * Model.XInputType.GetDisableValue());
                 Model.Max = (decimal)(100 * Model.XInputType.GetDisableValue());
@@ -95,9 +82,10 @@ namespace XOutput.UI.Component
             }
             else
             {
-                Model.MapperData.InputType = type;
+                Model.MapperData.Source = type;
                 Model.ConfigVisibility = System.Windows.Visibility.Visible;
             }
+            Controllers.Instance.Update(controller, InputDevices.Instance.GetDevices());
         }
     }
 }

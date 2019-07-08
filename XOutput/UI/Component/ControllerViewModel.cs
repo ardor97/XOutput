@@ -25,7 +25,7 @@ namespace XOutput.UI.Component
             Model.Controller = controller;
             Model.ButtonText = "Start";
             Model.Background = Brushes.White;
-            Model.Controller.InputDevice.InputChanged += InputDevice_InputChanged;
+            Model.Controller.XInput.InputChanged += InputDevice_InputChanged;
             timer.Interval = TimeSpan.FromMilliseconds(BackgroundDelayMS);
             timer.Tick += Timer_Tick;
         }
@@ -34,6 +34,7 @@ namespace XOutput.UI.Component
         {
             var controllerSettingsWindow = new ControllerSettingsWindow(new ControllerSettingsViewModel(new ControllerSettingsModel(), Model.Controller, isAdmin), Model.Controller);
             controllerSettingsWindow.ShowDialog();
+            Model.RefreshName();
         }
 
         public void StartStop()
@@ -71,7 +72,7 @@ namespace XOutput.UI.Component
         public void Dispose()
         {
             timer.Tick -= Timer_Tick;
-            Model.Controller.InputDevice.InputChanged -= InputDevice_InputChanged;
+            Model.Controller.XInput.InputChanged -= InputDevice_InputChanged;
         }
 
         private void Timer_Tick(object sender, EventArgs e)
